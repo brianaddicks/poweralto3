@@ -1,21 +1,20 @@
 class PaDevice {
     [string]$Device
-    [int]$Port
+    [int]$Port = 443
     [string]$ApiKey
-    [string]$Protocol
+    [string]$Protocol = "https"
 
     # Constructor
     PaDevice () {
     }
 
     [String] getApiUrl() {
-        switch ($this.Protocol) {
-            "http"  { }
-            default { $this.Protocol = "https" }
+        if ($this.Device) {
+            $url = $this.Protocol + "://" + $this.Device + ":" + $this.Port + "/api/"
+            return $url
+        } else {
+            return $null
         }
-
-        $url = $this.Protocol + "://"
-        return $url
     }
 
 }
