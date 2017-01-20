@@ -13,22 +13,21 @@ class HelperRegex {
     }
 
     # Ipv4 Address
-    [string] isIpv4($matchString) {
-        $errorMessage = "Value is not a valid IPv4 Address."
+    [string] isIpv4([string]$matchString, [string]$errorMessage) {
         $regexString  = $this::Ipv4
         return $this.checkRegex($matchString,$regexString,$errorMessage)
     }
 
     # Fqdn
-    [string] isFqdn($matchString) {
-        $errorMessage = "Value is not a valid FQDN."
+    [string] isFqdn([string]$matchString, [string]$errorMessage) {
+        #$errorMessage = "Value is not a valid FQDN."
         $regexString  = $this::Fqdn
         return $this.checkRegex($matchString,$regexString,$errorMessage)
     }
 
     # Fqdn or Ipv4 Address
-    [string] isFqdnOrIpv4($matchString) {
-        $errorMessage = "Value is not a valid FQDN or IPv4 Address."
+    [string] isFqdnOrIpv4([string]$matchString, [string]$errorMessage) {
+        #$errorMessage = "Value is not a valid FQDN or IPv4 Address."
         $regexString  = $this::Ipv4 + "|" + $this::Fqdn
         return $this.checkRegex($matchString,$regexString,$errorMessage)
     }
@@ -47,7 +46,7 @@ class PaDevice {
     # Constructor
     PaDevice ([string]$Device) {
         $helperRegex = [HelperRegex]::new()
-        $this.Device  = $helperRegex.isFqdnOrIpv4($Device)
+        $this.Device  = $helperRegex.isFqdnOrIpv4($Device,"Device must be a valid FQDN or IPv4 Address.")
     }
 
     [String] getApiUrl() {
