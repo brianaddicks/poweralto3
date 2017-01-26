@@ -1,3 +1,17 @@
+class HelperWebTools {
+    static [string] createQueryString ([hashtable]$hashTable) {
+        $i = 0
+        $queryString = "?"
+        foreach ($hash in $hashTable.GetEnumerator()) {
+            $i++
+            $queryString += $hash.Name + "=" + $hash.Value
+            if ($i -lt $HashTable.Count) {
+                $queryString += "&"
+            }
+        }
+        return $queryString
+    }
+}
 
 class PaDevice {
     [string]$Device
@@ -12,14 +26,14 @@ class PaDevice {
 
     [String] getApiUrl() {
         if ($this.Device) {
-            $url = $this.Protocol + "://" + $this.Device + ":" + $this.Port + "/api/?key=" + $this.ApiKey + "&"
+            $url = $this.Protocol + "://" + $this.Device + ":" + $this.Port + "/api/"
             return $url
         } else {
             return $null
         }
     }
 
-    [Xml] invokeConfigQuery($xPath) {
+    [Xml] invokeConfigQuery([string]$xPath,[string]$action) {
         $url = $this.getApiUrl() + "type=config&xpath=$xPath&action=show"
         $result = Invoke-WebRequest -Uri $url -SkipCertificateCheck
         $result = [xml]($result.Content)
