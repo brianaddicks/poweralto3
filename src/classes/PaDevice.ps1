@@ -7,6 +7,17 @@ class PaDevice {
     [ValidateSet('http','https')] 
     [string]$Protocol = "https"
 
+    [string]$Name
+    [string]$IpAddress
+    [string]$Model
+    [string]$Serial
+    [string]$OsVersion
+    [string]$GpAgent
+    [string]$AppVersion
+    [string]$ThreatVersion
+    [string]$WildFireVersion
+    [string]$UrlVersion
+
     # DeviceAddress
     hidden [string]$DeviceAddress
 
@@ -56,7 +67,6 @@ class PaDevice {
     # Config API Query
     [Xml] invokeConfigQuery([string]$xPath,[string]$action) {
         $queryString = @{}
-        #$queryString.key = $this.ApiKey
         $queryString.type = "config"
         $queryString.action = $action
         $queryString.xpath = $xPath
@@ -78,16 +88,61 @@ class PaDevice {
     # Keygen API Query
     [xml] invokeOperationalQuery([string]$cmd) {
         $queryString = @{}
-        #$queryString.key = $this.ApiKey
         $queryString.type = "op"
         $queryString.cmd = $cmd
         $result = $this.invokeApiQuery($queryString)
-        $this.ApiKey = $result.response.result.key
         return $result
     }
 
     # Test Connection
-    <#[bool] testConnection() {
+    [bool] testConnection() {
+        $result = $this.invokeOperationalQuery('<show><system><info></info></system></show>')
+        if ($result.response.status -ne "success") {
+            Throw "error"
+        } else {
+            $this.Name            = $result.response.result.system.devicename
+            $this.IpAddress       = $result.response.result.system.'ip-address'
+            $this.Model           = $result.response.result.system.model
+            $this.Serial          = $result.response.result.system.serial
+            $this.OsVersion       = $result.response.result.system.'sw-version'
+            $this.GpAgent         = $result.response.result.system.'global-protect-client-package-version'
+            $this.AppVersion      = $result.response.result.system.'app-version'
+            $this.ThreatVersion   = $result.response.result.system.'threat-version'
+            $this.WildFireVersion = $result.response.result.system.'wildfire-version'
+            $this.UrlVersion      = $result.response.result.system.'url-filtering-version'
+            return $true
+        }
+    }
+
+    
+
+<#
+            public string Name { get; set; }
+        public string IpAddress { get; set; }
+        private string model;
+        public string Model {
+            get {
+                return this.model;
+            }
+            set {
+                this.model = value;
+                if (this.model.Contains("anorama")) {
+                    this.type = "panorama";
+                    this.DeviceGroup = "shared";
+                } else {
+                    this.type = "firewall";
+                }
+            }
+        }
         
-    }#>
+        public string Serial { get; set; }
+
+        public string OsVersion { get; set; }
+        public string GpAgent { get; set; }
+        public string AppVersion { get; set; }
+        public string ThreatVersion { get; set; }
+        public string WildFireVersion { get; set; }
+        public string UrlVersion { get; set; }
+
+#>
 }
