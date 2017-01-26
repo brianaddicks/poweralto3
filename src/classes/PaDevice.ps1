@@ -11,11 +11,12 @@ class PaDevice {
     hidden [string]$DeviceAddress
 
     setDeviceAddress([string]$deviceAddress) {
-        $this.DeviceAddress = [HelperRegex]::isFqdnOrIpv4($deviceAddress,"Device must be a valid FQDN or IPv4 Address.")
+        $this.DeviceAddress = [HelperRegex]::isFqdnOrIpv4($deviceAddress,"DeviceAddress must be a valid FQDN or IPv4 Address.")
     }
 
     [string] getDeviceAddress() {
-        return $this.DeviceAddress
+        $returnValue = [HelperRegex]::isFqdnOrIpv4($this.DeviceAddress,"DeviceAddress must be a valid FQDN or IPv4 Address.")
+        return $returnValue
     }
 
     # Track usage
@@ -24,20 +25,27 @@ class PaDevice {
     # Function for created the base API Url
     [String] getApiUrl() {
         if ($this.DeviceAddress) {
-            $url = $this.Protocol + "://" + $this.DeviceAddress + ":" + $this.Port + "/api/"
+            $url = $this.Protocol + "://" + $this.getDeviceAddress() + ":" + $this.Port + "/api/"
             return $url
         } else {
             return $null
         }
     }
 
+    ############################################################################################
+    # Api Query Functions
+
     # Base API Query
     [Xml] invokeApiQuery([hashtable]$queryString) {
+        if ($queryString.type -ne "keygen") {
+            $queryString.key = $this.ApiKey
+        }
         $formattedQueryString = [HelperWebTools]::createQueryString($queryString)
         $url = $this.getApiUrl() + $formattedQueryString
         if ($queryString.type -ne "keygen") {
             $this.UrlHistory += $url
         } else {
+            $formattedQueryString = [HelperWebTools]::createQueryString($queryString)
             $this.UrlHistory += $url.Replace($queryString.password,"PASSWORDREDACTED")
         }
         $rawResult = Invoke-WebRequest -Uri $url -SkipCertificateCheck
@@ -48,7 +56,7 @@ class PaDevice {
     # Config API Query
     [Xml] invokeConfigQuery([string]$xPath,[string]$action) {
         $queryString = @{}
-        $queryString.key = $this.ApiKey
+        #$queryString.key = $this.ApiKey
         $queryString.type = "config"
         $queryString.action = $action
         $queryString.xpath = $xPath
@@ -66,4 +74,20 @@ class PaDevice {
         $this.ApiKey = $result.response.result.key
         return $result
     }
+
+    # Keygen API Query
+    [xml] invokeOperationalQuery([string]$cmd) {
+        $queryString = @{}
+        #$queryString.key = $this.ApiKey
+        $queryString.type = "op"
+        $queryString.cmd = $cmd
+        $result = $this.invokeApiQuery($queryString)
+        $this.ApiKey = $result.response.result.key
+        return $result
+    }
+
+    # Test Connection
+    <#[bool] testConnection() {
+        
+    }#>
 }
