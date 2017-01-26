@@ -3,7 +3,7 @@ class HelperRegex {
     static [string]$Fqdn = '(?=^.{1,254}$)(^(?:(?!\d|-)[a-zA-Z0-9\-]{1,63}(?<!-)\.?)+(?:[a-zA-Z]{2,})$)'
 
     # function for checking regular expressions
-    hidden [string] checkRegex($matchString,$regexString,$errorMessage) {
+    static [string] checkRegex($matchString,$regexString,$errorMessage) {
         $regex = [regex]$regexString
         if ($regex.Match($matchString).Success) {
             return $matchString
@@ -13,21 +13,21 @@ class HelperRegex {
     }
 
     # Ipv4 Address
-    [string] isIpv4([string]$matchString, [string]$errorMessage) {
-        $regexString  = $this::Ipv4
-        return $this.checkRegex($matchString,$regexString,$errorMessage)
+    static [string] isIpv4([string]$matchString, [string]$errorMessage) {
+        $regexString  = [HelperRegex]::Ipv4
+        return [HelperRegex]::checkRegex($matchString,$regexString,$errorMessage)
     }
 
     # Fqdn
-    [string] isFqdn([string]$matchString, [string]$errorMessage) {
-        $regexString  = $this::Fqdn
-        return $this.checkRegex($matchString,$regexString,$errorMessage)
+    static [string] isFqdn([string]$matchString, [string]$errorMessage) {
+        $regexString  = [HelperRegex]::Fqdn
+        return [HelperRegex]::checkRegex($matchString,$regexString,$errorMessage)
     }
 
     # Fqdn or Ipv4 Address
-    [string] isFqdnOrIpv4([string]$matchString, [string]$errorMessage) {
-        $regexString  = $this::Ipv4 + "|" + $this::Fqdn
-        return $this.checkRegex($matchString,$regexString,$errorMessage)
+    static [string] isFqdnOrIpv4([string]$matchString, [string]$errorMessage) {
+        $regexString  = [HelperRegex]::Ipv4 + "|" + [HelperRegex]::Fqdn
+        return [HelperRegex]::checkRegex($matchString,$regexString,$errorMessage)
     }
 
     # Constructor
