@@ -1,20 +1,30 @@
 class PaDevice {
-    [string]$Device
+    [ValidateRange(1,65535)]
     [int]$Port = 443
+    
     [string]$ApiKey
+
+    [ValidateSet('http','https')] 
     [string]$Protocol = "https"
+
+    # DeviceAddress
+    hidden [string]$DeviceAddress
+
+    setDeviceAddress([string]$deviceAddress) {
+        $this.DeviceAddress = [HelperRegex]::isFqdnOrIpv4($deviceAddress,"Device must be a valid FQDN or IPv4 Address.")
+    }
+
+    [string] getDeviceAddress() {
+        return $this.DeviceAddress
+    }
 
     # Track usage
     [array]$UrlHistory
 
-    # Constructor
-    PaDevice ([string]$Device) {
-        $this.Device  = [HelperRegex]::isFqdnOrIpv4($Device,"Device must be a valid FQDN or IPv4 Address.")
-    }
-
+    # Function for created the base API Url
     [String] getApiUrl() {
-        if ($this.Device) {
-            $url = $this.Protocol + "://" + $this.Device + ":" + $this.Port + "/api/"
+        if ($this.DeviceAddress) {
+            $url = $this.Protocol + "://" + $this.DeviceAddress + ":" + $this.Port + "/api/"
             return $url
         } else {
             return $null
@@ -28,7 +38,7 @@ class PaDevice {
         if ($queryString.type -ne "keygen") {
             $this.UrlHistory += $url
         } else {
-            $this.UrlHistory += $url -replace $queryString.password,"PASSWORDREDACTED"
+            $this.UrlHistory += $url.Replace($queryString.password,"PASSWORDREDACTED")
         }
         $rawResult = Invoke-WebRequest -Uri $url -SkipCertificateCheck
         $result = [xml]($rawResult.Content)
