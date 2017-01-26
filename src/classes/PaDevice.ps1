@@ -7,17 +7,23 @@ class PaDevice {
 
     # Constructor
     PaDevice ([string]$Device) {
-        $helperRegex = [HelperRegex]::new()
-        $this.Device  = $helperRegex.isFqdnOrIpv4($Device,"Device must be a valid FQDN or IPv4 Address.")
+        $this.Device  = [HelperRegex]::isFqdnOrIpv4($Device,"Device must be a valid FQDN or IPv4 Address.")
     }
 
     [String] getApiUrl() {
         if ($this.Device) {
-            $url = $this.Protocol + "://" + $this.Device + ":" + $this.Port + "/api/"
+            $url = $this.Protocol + "://" + $this.Device + ":" + $this.Port + "/api/?key=" + $this.ApiKey + "&"
             return $url
         } else {
             return $null
         }
+    }
+
+    [Xml] invokeConfigQuery($xPath) {
+        $url = $this.getApiUrl() + "type=config&xpath=$xPath&action=show"
+        $result = Invoke-WebRequest -Uri $url -SkipCertificateCheck
+        $result = [xml]($result.Content)
+        return $result
     }
 
 }
