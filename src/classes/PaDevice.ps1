@@ -35,6 +35,7 @@ class PaDevice {
     [array]$UrlHistory
     [array]$RawQueryResultHistory
     [array]$QueryHistory
+    hidden $LastError
 
     # Function for created the base API Url
     [String] getApiUrl() {
@@ -71,9 +72,16 @@ class PaDevice {
         if ($result.response.status -ne "success") {
             $errorMessage = "PaDevice: " + $result.response.status + " " + $result.response.code + ": "
             if ($result.response.msg.line) {
-                $errorMessage += $result.response.msg.line
+                if ($result.response.msg.line."#cdata-section") {
+                    $errorMessage += "Too Many errors, check `$global:PaDeviceObject.LastError for more details."
+                    $this.LastError = $result.response.msg.line."#cdata-section"
+                } else {
+                    $errorMessage += $result.response.msg.line
+                    $this.LastError = $result.response.msg.line
+                }
             } else {
                 $errorMessage += $result.response.result.msg
+                $this.LastError = $result.response.result.msg
             }
             Throw $errorMessage
         }

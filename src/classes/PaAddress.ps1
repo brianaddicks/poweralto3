@@ -9,7 +9,7 @@ class PaAddress {
     
     # XPath
     [string] getXPath() {
-        $xPath = "/config/devices/entry/vsys/entry/[@name='$($this.Vsys)']/address"
+        $xPath = "/config/devices/entry/vsys/entry[@name='$($this.Vsys)']/address"
         return $xPath
     }
 
