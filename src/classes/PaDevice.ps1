@@ -31,6 +31,7 @@ class PaDevice {
     }
 
     # Track usage
+    [bool]$Connected
     [array]$UrlHistory
     [array]$RawQueryResultHistory
 
@@ -106,6 +107,7 @@ class PaDevice {
     # Test Connection
     [bool] testConnection() {
         $result = $this.invokeOperationalQuery('<show><system><info></info></system></show>')
+        $this.Connected       = $true
         $this.Name            = $result.response.result.system.devicename
         $this.IpAddress       = $result.response.result.system.'ip-address'
         $this.Model           = $result.response.result.system.model
