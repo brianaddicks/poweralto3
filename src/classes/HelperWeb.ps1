@@ -1,4 +1,4 @@
-class HelperWebTools {
+class HelperWeb {
     static [string] createQueryString ([hashtable]$hashTable) {
         $i = 0
         $queryString = "?"
