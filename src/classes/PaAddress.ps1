@@ -5,9 +5,13 @@ class PaAddress {
     [string]$Type
     [string]$Address
     [array]$Tags
-    [string]$Vsys
+    [string]$Vsys = "vsys1"
     
     # XPath
+    [string] getXPath() {
+        $xPath = "/config/devices/entry/vsys/entry/[@name='$($this.Vsys)']/address"
+        return $xPath
+    }
 
     # Xml
     [System.Xml.Linq.XElement] getXml() {
@@ -29,5 +33,15 @@ class PaAddress {
         $doc.Element("entry").Add([HelperXml]::createXmlWithMembers("tag",$this.Tags,$false))
 
         return $doc.Element("entry")
-    }    
+    }
+
+    # Pretty XMl
+    [string] PrintPrettyXml() {
+        return $this.getXml().ToString()
+    }
+
+    # Plaintext Xml
+    [string] PrintPlainXml() {
+        return $this.getXml().ToString([System.Xml.Linq.SaveOptions]::DisableFormatting)
+    }
 }

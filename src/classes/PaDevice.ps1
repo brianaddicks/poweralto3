@@ -84,6 +84,17 @@ class PaDevice {
         return $result
     }
 
+    [Xml] invokeConfigQuery([string]$xPath,[string]$action,[string]$element) {
+        $queryString         = @{}
+        $queryString.type    = "config"
+        $queryString.action  = $action
+        $queryString.xpath   = $xPath
+        $queryString.element = $element
+        
+        $result = $this.invokeApiQuery($queryString)
+        return $result
+    }
+
     # Keygen API Query
     [xml] invokeKeygenQuery([string]$user,[string]$password) {
         $queryString = @{}
