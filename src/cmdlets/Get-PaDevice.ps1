@@ -66,6 +66,7 @@ function Get-PaDevice {
 	)
 
     BEGIN {
+		$VerbosePrefix = "Get-PaDevice:"
 
 		if ($HttpOnly) {
 			$Protocol = "http"
