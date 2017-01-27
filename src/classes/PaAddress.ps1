@@ -22,7 +22,11 @@ class PaAddress {
         # Add Name
         $doc.Element("entry").Add([HelperXml]::createXmlWithoutMembers($this.Type,$this.Address))
 
+        # Add Description
+        $doc.Element("entry").Add([HelperXml]::createXmlWithoutMembers("description",$this.Description))
         
+        # Add Tags
+        $doc.Element("entry").Add([HelperXml]::createXmlWithMembers("tag",$this.Tags,$false))
 
         return $doc.Element("entry")
         <#
@@ -41,25 +45,5 @@ class PaAddress {
 			return XmlObject.Element("entry");
 	  }#>
     }
-    <#
-    private XElement createXmlWithMembers( string XmlKeyword, List<string> RuleProperty = null, bool Required = false) {
-        XElement nodeXml = new XElement(XmlKeyword);
-        if (RuleProperty != null) {
-            foreach (string member in RuleProperty) {
-                nodeXml.Add(
-                    new XElement("member",member)
-                );
-            }
-        } else {
-            if (!(Required)) {
-                return null;
-            }
-            nodeXml.Add(
-                new XElement("member","any")
-            );
-        }
-        return nodeXml;
-    }
-
-    #>
+    
 }
