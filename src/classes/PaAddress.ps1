@@ -29,21 +29,5 @@ class PaAddress {
         $doc.Element("entry").Add([HelperXml]::createXmlWithMembers("tag",$this.Tags,$false))
 
         return $doc.Element("entry")
-        <#
-            XDocument XmlObject = new XDocument();
-            
-            // create entry nod and define name attribute
-			XElement xmlEntry = new XElement("entry");
-			xmlEntry.SetAttributeValue("name",this.Name);
-			XmlObject.Add(xmlEntry);
-
-			XmlObject.Element("entry").Add( createXmlWithoutMembers( this.addressType, this.address));	// Address
-            XmlObject.Element("entry").Add( createXmlWithMembers( "tag", this.Tags, false ));			      // Tags
-			XmlObject.Element("entry").Add( createXmlWithoutMembers( "description", this.Description));	// Description
-			
-
-			return XmlObject.Element("entry");
-	  }#>
-    }
-    
+    }    
 }
