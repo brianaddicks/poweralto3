@@ -53,12 +53,12 @@ class PaDevice {
         if ($queryString.type -ne "keygen") {
             $queryString.key = $this.ApiKey
         }
-        $formattedQueryString = [HelperWebTools]::createQueryString($queryString)
+        $formattedQueryString = [HelperWeb]::createQueryString($queryString)
         $url = $this.getApiUrl() + $formattedQueryString
         if ($queryString.type -ne "keygen") {
             $this.UrlHistory += $url
         } else {
-            $formattedQueryString = [HelperWebTools]::createQueryString($queryString)
+            $formattedQueryString = [HelperWeb]::createQueryString($queryString)
             $this.UrlHistory += $url.Replace($queryString.password,"PASSWORDREDACTED")
         }
         $rawResult = Invoke-WebRequest -Uri $url -SkipCertificateCheck

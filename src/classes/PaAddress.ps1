@@ -11,14 +11,18 @@ class PaAddress {
 
     # Xml
     [System.Xml.Linq.XElement] getXml() {
+        # Document Root
         $doc = [System.Xml.Linq.XDocument]::new()
 
+        # Create and add "entry" node
         $entry = [System.Xml.Linq.XElement]::new("entry",$null)
         $entry.SetAttributeValue("name",$this.Name)
-
-        $doc.Element("entry").Add($this.createXmlWithoutMembers($this.Type,$this.Address))
-
         $doc.Add($entry)
+
+        # Add Name
+        $doc.Element("entry").Add([HelperXml]::createXmlWithoutMembers($this.Type,$this.Address))
+
+        
 
         return $doc.Element("entry")
         <#
@@ -58,23 +62,4 @@ class PaAddress {
     }
 
     #>
-
-    # Element without Members
-    [System.Xml.Linq.XElement] createXmlWithoutMembers([string]$propertyName, [string]$data) {
-        if ($data) {
-            return [System.Xml.Linq.XElement]::new($propertyName,$data)
-        } else {
-            return $null
-        }
-    }
-
-    # Element with Members
-    [System.Xml.Linq.XElement] createXmlWithoutMembers([string]$propertyName, [array]$data, [bool] $isRequired) {
-        if ($data) {
-            return [System.Xml.Linq.XElement]::new($propertyName,$data)
-        } else {
-            return $null
-        }
-    }
-
 }
