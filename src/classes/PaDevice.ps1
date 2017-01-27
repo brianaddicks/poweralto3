@@ -34,6 +34,7 @@ class PaDevice {
     [bool]$Connected
     [array]$UrlHistory
     [array]$RawQueryResultHistory
+    [array]$QueryHistory
 
     # Function for created the base API Url
     [String] getApiUrl() {
@@ -57,6 +58,7 @@ class PaDevice {
         $url = $this.getApiUrl() + $formattedQueryString
         if ($queryString.type -ne "keygen") {
             $this.UrlHistory += $url
+            $this.QueryHistory += $queryString
         } else {
             $formattedQueryString = [HelperWeb]::createQueryString($queryString)
             $this.UrlHistory += $url.Replace($queryString.password,"PASSWORDREDACTED")
@@ -67,7 +69,12 @@ class PaDevice {
 
         # Handle Errors
         if ($result.response.status -ne "success") {
-            $errorMessage = $result.response.status + " " + $result.response.code + ": " + $result.response.result.msg
+            $errorMessage = "PaDevice: " + $result.response.status + " " + $result.response.code + ": "
+            if ($result.response.msg.line) {
+                $errorMessage += $result.response.msg.line
+            } else {
+                $errorMessage += $result.response.result.msg
+            }
             Throw $errorMessage
         }
 
@@ -90,7 +97,7 @@ class PaDevice {
         $queryString.action  = $action
         $queryString.xpath   = $xPath
         $queryString.element = $element
-        
+
         $result = $this.invokeApiQuery($queryString)
         return $result
     }
