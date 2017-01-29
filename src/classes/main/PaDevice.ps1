@@ -31,11 +31,20 @@ class PaDevice {
     }
 
     # Track usage
-    [bool]$Connected
+    hidden [bool]$Connected
     [array]$UrlHistory
     [array]$RawQueryResultHistory
     [array]$QueryHistory
     hidden $LastError
+
+    # Error handling
+    [bool] checkConnectionStatus([string]$errorPrefix) {
+        if ($this.Connected) {
+            return $true
+        } else {
+            throw "$errorPrefix Not Connected, please use Get-PaConfig to connect before using other cmdlets."
+        }
+    }
 
     # Function for created the base API Url
     [String] getApiUrl() {
