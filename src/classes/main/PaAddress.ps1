@@ -1,4 +1,4 @@
-class PaAddress {
+class PaAddress : PaConfigObject {
     [string]$Name
     [bool]$Shared
     [string]$Description
@@ -35,6 +35,7 @@ class PaAddress {
         return $doc.Element("entry")
     }
 
+    <#
     # Pretty XMl
     [string] PrintPrettyXml() {
         return $this.getXml().ToString()
@@ -44,4 +45,5 @@ class PaAddress {
     [string] PrintPlainXml() {
         return $this.getXml().ToString([System.Xml.Linq.SaveOptions]::DisableFormatting)
     }
+    #>
 }
