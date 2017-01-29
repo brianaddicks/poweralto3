@@ -34,16 +34,4 @@ class PaAddress : PaConfigObject {
 
         return $doc.Element("entry")
     }
-
-    <#
-    # Pretty XMl
-    [string] PrintPrettyXml() {
-        return $this.getXml().ToString()
-    }
-
-    # Plaintext Xml
-    [string] PrintPlainXml() {
-        return $this.getXml().ToString([System.Xml.Linq.SaveOptions]::DisableFormatting)
-    }
-    #>
 }
