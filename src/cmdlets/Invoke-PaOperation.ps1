@@ -5,7 +5,7 @@ function Invoke-PaOperation {
 		[string]$Command
     )
 
-    $VerbosePrefix = "Invoke-Pester:"
+    $VerbosePrefix = "Invoke-PaOperation:"
 
     $CheckConnection = $global:PaDeviceObject.checkConnectionStatus($VerbosePrefix)
 
