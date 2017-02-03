@@ -8,9 +8,6 @@ function Get-PaSession {
 		[string]$Application,
 
         [Parameter(Mandatory=$False,ParameterSetName="filter")]
-		[int]$Count,
-
-        [Parameter(Mandatory=$False,ParameterSetName="filter")]
 		[string]$Destination,
 
         [Parameter(Mandatory=$False,ParameterSetName="filter")]
@@ -89,7 +86,6 @@ function Get-PaSession {
     $VerbosePrefix = "Get-PaSession:"
 
     $Filters = @{ "Application"      = "application"
-                  "Count"            = "count"
                   "Destination"      = "destination"
                   "DestinationPort"  = "destination-port"
                   "DestinationUser"  = "destination-user"
