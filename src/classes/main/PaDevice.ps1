@@ -32,10 +32,11 @@ class PaDevice {
 
     # Track usage
     hidden [bool]$Connected
-    hidden [array]$UrlHistory
-    hidden [array]$RawQueryResultHistory
-    hidden [array]$QueryHistory
-    hidden $LastError
+    [array]$UrlHistory
+    [array]$RawQueryResultHistory
+    [array]$QueryHistory
+    $LastError
+    $LastResult
 
     # Error handling
     [bool] checkConnectionStatus([string]$errorPrefix) {
@@ -76,6 +77,7 @@ class PaDevice {
         $rawResult = Invoke-WebRequest -Uri $url -SkipCertificateCheck
         $this.RawQueryResultHistory += $rawResult
         $result = [xml]($rawResult.Content)
+        $this.LastResult = $result
 
         # Handle Errors
         if ($result.response.status -ne "success") {
