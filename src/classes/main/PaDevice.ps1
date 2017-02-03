@@ -32,9 +32,9 @@ class PaDevice {
 
     # Track usage
     hidden [bool]$Connected
-    [array]$UrlHistory
-    [array]$RawQueryResultHistory
-    [array]$QueryHistory
+    hidden [array]$UrlHistory
+    hidden [array]$RawQueryResultHistory
+    hidden [array]$QueryHistory
     hidden $LastError
 
     # Error handling

@@ -1,0 +1,20 @@
+class PaSession {
+    [double]$Id
+    [string]$Vsys
+    [string]$Application
+    [string]$State
+    [string]$Type
+    [string]$Flag
+    [string]$Source
+    [string]$SourcePort
+    [string]$SourceZone
+    [string]$SourceProtocol
+    [string]$SourceTranslatedIp
+    [string]$SourceTranslatedPort
+    [string]$Destination
+    [string]$DestinationPort
+    [string]$DestinationZone
+    [string]$DestinationProtocol
+    [string]$DestinationTranslatedIp
+    [string]$DestinationTranslatedPort
+}

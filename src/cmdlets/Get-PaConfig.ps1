@@ -11,7 +11,17 @@ function Get-PaConfig {
     $VerbosePrefix = "Get-PaConfig:"
 
     if ($global:PaDeviceObject.Connected) {
-        return $global:PaDeviceObject.invokeConfigQuery($Xpath,$Action)
+        $Response = $global:PaDeviceObject.invokeConfigQuery($Xpath,$Action)
+
+        $rx = [regex] "\/.+?vsys\/entry.+?\/(.+)"
+        $ConfigObject = new-Object PaConfigObject
+        $XPathNode = $rx.Match($Xpath).Groups[1].Value
+        $Global:TestObject = "" | Select XPathNode,ManualXml
+        $Global:TestObject.XPathNode = $XPathNode
+
+        $ConfigObject.XpathNode = $XPathNode
+        $ConfigObject.ManualXml = $Response.response.result.$XPathNode.InnerXml
+        return $ConfigObject
     } else {
         Throw "$VerbosePrefix Not Connected, please use Get-PaConfig to connect before using other cmdlets."
     }

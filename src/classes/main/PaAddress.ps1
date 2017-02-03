@@ -6,10 +6,11 @@ class PaAddress : PaConfigObject {
     [string]$Address
     [array]$Tags
     [string]$Vsys = "vsys1"
+    hidden [string]$XPathNode = "address"
     
     # XPath
     [string] getXPath() {
-        $xPath = "/config/devices/entry/vsys/entry[@name='$($this.Vsys)']/address"
+        $xPath = "/config/devices/entry/vsys/entry[@name='$($this.Vsys)']/$($this.XPathNode)"
         return $xPath
     }
 
