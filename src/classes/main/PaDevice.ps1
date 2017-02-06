@@ -74,7 +74,11 @@ class PaDevice {
             $formattedQueryString = [HelperWeb]::createQueryString($queryString)
             $this.UrlHistory += $url.Replace($queryString.password,"PASSWORDREDACTED")
         }
-        $rawResult = Invoke-WebRequest -Uri $url -SkipCertificateCheck
+        try {
+            $rawResult = Invoke-WebRequest -Uri $url -SkipCertificateCheck
+        } catch {
+            Throw "$($error[0].ToString()) $($error[0].InvocationInfo.PositionMessage)"
+        }
         $this.RawQueryResultHistory += $rawResult
         $result = [xml]($rawResult.Content)
         $this.LastResult = $result

@@ -97,24 +97,27 @@ function Invoke-PaSessionTracker {
     $SessionParameters.Remove("NoClear") | Out-Null
 
     for ($i = 1;$i -eq 1) {
-        $Sessions = Get-PaSession @SessionParameters
+        $OldSessions = $AllSessions | Select-Object *
+        $Sessions = Get-PaSession @SessionParameters | Sort-Object StartTime
         $NewSessions = @()
-        foreach ($Session in $Sessions) {
+        foreach ($Session in $Sessions[0..($Count-1)]) {
             $Lookup = $OldSessions | Where-Object { $_.Id -eq $Session.Id }
             if (!($Lookup)) {
                 $NewSessions += $Session | Select-Object *,TickCount
             }
         }
-        $NewSessions = $NewSessions[0..($Count - 1)]
 
         # Get proper number of OldSessions
-        $OldSessions = $AllSessions | Select-Object *
+        
         if (($NewSessions.Count -lt $Count) -and ($OldSessions.Count -gt 0)) {
             $AvailableCount = $Count - $NewSessions.Count
             $OldSessions = $OldSessions[0..($AvailableCount - 1)]
+            $AllSessions = $NewSessions + $OldSessions
+        } else {
+            $AllSessions = $NewSessions
         }
 
-        $AllSessions = $NewSessions + $OldSessions
+        
         $AllSessions = $AllSessions | Select-Object * | Sort-Object StartTime -Descending
         $global:test3 = $AllSessions
 
