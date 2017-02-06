@@ -15,4 +15,6 @@ class PaSession {
     [string]$DestinationTranslatedIp
     [string]$DestinationTranslatedPort
     [string]$Protocol
+
+    [datetime]$StartTime
 }

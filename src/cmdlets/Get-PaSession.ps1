@@ -149,8 +149,9 @@ function Get-PaSession {
             $Session.Id = $Result.idx
         }
 
-        $Session.Vsys                      = $Result.vsys
-        $Session.Application               = $Result.application
+        $Session.Vsys        = $Result.vsys
+        $Session.Application = $Result.application
+        $Session.StartTime   = [datetime]::ParseExact($Result.'start-time',"ddd MMM  d HH:mm:ss yyyy",$null)
 
         if ($Result.c2s) {
             $Session.State                     = $Result.c2s.state

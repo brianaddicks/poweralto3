@@ -99,10 +99,13 @@ function Invoke-PaSessionTracker {
         $Sessions = $Sessions[0..$Count]
         Clear-Host
 
+        # Write top block of info.
+        Write-Host "Total Sessions Matched: $($Sessions.Count)"
+        Write-Host "Sessions Shown: $Count"
+        Write-Host ""
+
         foreach ($p in $ShowProperties) {
             $global:test = $Sessions
-            $PropertyType = $Sessions[0].$p.GetType().Name
-            Write-Verbose "$VerbosePrefix Property '$p' is of type $PropertyName"
 
             $ValueMaxLength = 0
             foreach ($s in $sessions) {
