@@ -5,10 +5,10 @@ function Invoke-PaSessionTracker {
 		[int]$Interval = 5,
 
         [Parameter(Mandatory=$False)]
-		[array]$ShowProperties = @("Id","Application","Source","Destination","State","DestinationPort"),
+		[array]$ShowProperties = @("StartTime","Id","Application","Source","Destination","State","DestinationPort"),
 
         [Parameter(Mandatory=$False)]
-		[int]$Count = 25,
+		[int]$Count = 40,
 
         [Parameter(Mandatory=$False)]
 		[string]$Application,
@@ -83,55 +83,108 @@ function Invoke-PaSessionTracker {
 		[string]$SourceUser,
 
         [Parameter(Mandatory=$False)]
-		[string]$State
+		[string]$State,
+
+        [Parameter(Mandatory=$False)]
+		[switch]$NoClear
     )
 
     $VerbosePrefix = "Invoke-PaSessionTracker:"
     
     $SessionParameters = $PSBOUNDPARAMETERS
     $SessionParameters.Remove("Interval") | Out-Null
+    $SessionParameters.Remove("ShowProperties") | Out-Null
+    $SessionParameters.Remove("NoClear") | Out-Null
 
     for ($i = 1;$i -eq 1) {
         $LengthValues = @()
-        $OldSessions = $Sessions | Select-Object *
+        $OldSessions = $AllSessions | Select-Object *
         $global:test2 = $OldSessions
+        
         $Sessions = Get-PaSession @SessionParameters
-        $Sessions = $Sessions[0..$Count]
-        Clear-Host
+        $NewSessions = @()
+        foreach ($Session in $Sessions) {
+            $Lookup = $OldSessions | Where-Object { $_.Id -eq $Sessions.Id }
+            if (!($Lookup)) {
+                $NewSessions += $Session | Select-Object *,TickCount
+            }
+        }
+        $NewSessions = $NewSessions[0..($Count - 1)]
+
+
+
+
+        if ($NewSessions.Count -lt $Count) {
+            $AvailableCount = $Count - $NewSessions.Count
+            $OldSessions = $OldSessions[0..($AvailableCount - 1)]
+        }
+        $AllSessions = $NewSessions + $OldSessions
+        $AllSessions = $AllSessions | Sort-Object StartTime -Descending
+        $AllSessions = $AllSessions | Select-Object * | Sort-Object Id -Descending
+        $global:test3 = $AllSessions
+
+        if (!($NoClear)) {
+            Clear-Host
+        }
 
         # Write top block of info.
         Write-Host "Total Sessions Matched: $($Sessions.Count)"
-        Write-Host "Sessions Shown: $Count"
+        Write-Host "Sessions Shown: $($AllSessions.Count)"
         Write-Host ""
 
+        # Find Column Length and output Headers
         foreach ($p in $ShowProperties) {
-            $global:test = $Sessions
 
-            $ValueMaxLength = 0
-            foreach ($s in $sessions) {
-                $CurrentLength = $s.$p.ToString().Length
-                if ($CurrentLength -gt $ValueMaxLength) {
-                    $ValueMaxLength = $CurrentLength
+            # Find length of header
+            if ($p -eq "TickCount") {
+                $ValueMaxLength = 0
+            } else {
+                $global:test = $Sessions
+
+                $ValueMaxLength = 0
+                foreach ($s in $AllSessions) {
+                    $CurrentLength = $s.$p.ToString().Length
+                    if ($CurrentLength -gt $ValueMaxLength) {
+                        $ValueMaxLength = $CurrentLength
+                    }
                 }
             }
-            
             if ($p.Length -gt $ValueMaxLength) {
                 Write-Verbose "$VerbosePrefix CurrentValue: $ValueMaxLength; NameLength: $($p.Length)"
                 $ValueMaxLength = $p.Length
             }
+
+            # Log Column Lengths
             $New = "" | Select-Object Name,MaxLength
             $New.Name = $p
             $New.MaxLength = $ValueMaxLength
             $LengthValues += $New
             Write-Verbose "$VerbosePrefix Name: $($New.Name); MaxLength: $($New.MaxLength)"
+
+            # Write Headers
             $Header = $p.PadRight(($ValueMaxLength + 2)," ")
             Write-Host $Header -NoNewline
         }
+        
+        # Add NewLine after Headers
         Write-Host
         $global:LengthValues = $LengthValues
 
-        foreach ($Session in $Sessions) {
-            $Lookup = $OldSessions | ? { $_.Id -eq $Session.Id }
+
+
+        $SessionCounter = 0
+        foreach ($Session in $AllSessions) {
+            if ($Session.TickCount -gt 0) {
+                $Session.TickCount++
+            } else {
+                $Session.TickCount = 1
+            }
+            
+            $SessionCounter++
+            $SessionCounterString = "$SessionCounter".PadRight(3," ")
+            Write-Host $SessionCounterString -NoNewline
+
+            $Lookup = $OldSessions | Where-Object { $_.Id -eq $Session.Id }
             foreach ($p in $LengthValues) {
                 $PropertyName = $p.Name
                 Write-Verbose "$VerbosePrefix PropertyName: $PropertyName"
@@ -165,46 +218,6 @@ function Invoke-PaSessionTracker {
                         break
                     }
                 }
-                Write-Host @WriteHostParams
-            }
-            Write-Host
-        }
-
-        foreach ($Session in $OldSessions) {
-            $Lookup = $Sessions | ? { $_.Id -eq $Session.Id }
-            foreach ($p in $LengthValues) {
-                $PropertyName = $p.Name
-                Write-Verbose "$VerbosePrefix PropertyName: $PropertyName"
-                $PropertyValue  = $Session.$PropertyName.ToString()
-                Write-Verbose "$VerbosePrefix PropertyValue: $PropertyValue"
-                $PropertyLength = $p.MaxLength
-                Write-Verbose "$VerbosePrefix PropertyLength: $PropertyLength"
-                $Value = [string]$PropertyValue.PadRight(($PropertyLength + 2)," ")
-
-                $WriteHostParams = @{}
-                $WriteHostParams.NoNewLine = $true
-                $WriteHostParams.Object = $Value
-                if (!($Lookup)) {
-                    $WriteHostParams.ForegroundColor = "DarkGray"
-                } else {
-                    $WriteHostParams.Remove("ForegroundColor")
-                }
-<#                switch ($PropertyName) {
-                    "State" {
-                        switch ($Value) {
-                            {$_ -match "active"} {
-                                $WriteHostParams.ForegroundColor = "DarkGreen"
-                            }
-                            {$_ -match "discard"} {
-                                $WriteHostParams.ForegroundColor = "DarkRed"
-                            }
-                            default {
-                                $WriteHostParams.Remove("ForegroundColor")
-                            }
-                        }
-                        break
-                    }
-                }#>
                 Write-Host @WriteHostParams
             }
             Write-Host
