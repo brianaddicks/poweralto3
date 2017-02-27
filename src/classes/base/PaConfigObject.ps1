@@ -1,13 +1,33 @@
 class PaConfigObject {
     # Generic Properties
-    [string]$Vsys = "vsys1"
-    hidden [string]$XPathNode
+    [string]$Vsys
+    [string]$Device
+    [string]$ConfigNode
     hidden [string]$ManualXml
     
+    # BaseXPath
+    [string] getBaseXPath() {
+        $xPath = "/config/devices/entry"
+        
+        # Add Device
+        if ($this.Device) {
+            $xPath += "[@name='$($this.Device)']"
+        }
+        
+        # Add Vsys
+        $xPath += "/vsys/entry"
+        if ($this.Vsys) {
+            $xPath += "[@name='$($this.Vsys)']"
+        }
+
+        $xPath += $this.ConfigNode
+
+        return $xPath
+    }
+
     # XPath
     [string] getXPath() {
-        $xPath = "/config/devices/entry/vsys/entry[@name='$($this.Vsys)']/$($this.XPathNode)"
-        return $xPath
+        return $this.getBaseXPath()
     }
 
     # Xml

@@ -151,7 +151,10 @@ function Get-PaSession {
 
         $Session.Vsys        = $Result.vsys
         $Session.Application = $Result.application
-        $Session.StartTime   = [datetime]::ParseExact($Result.'start-time',"ddd MMM  d HH:mm:ss yyyy",$null)
+        
+        # Format Time
+        $StartTime = $Result.'start-time' -replace ' ',''
+        $Session.StartTime   = [datetime]::ParseExact($StartTime,"dddMMMdHH:mm:ssyyyy",$null)
 
         if ($Result.c2s) {
             $Session.State                     = $Result.c2s.state

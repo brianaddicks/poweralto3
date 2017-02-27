@@ -1,17 +1,23 @@
 class PaAddress : PaConfigObject {
     [string]$Name
-    [bool]$Shared
     [string]$Description
     [string]$Type
     [string]$Address
     [array]$Tags
-    [string]$Vsys = "vsys1"
-    hidden [string]$XPathNode = "address"
-    
+    [string]$ConfigNode = "/address"
+
     # XPath
     [string] getXPath() {
-        $xPath = "/config/devices/entry/vsys/entry[@name='$($this.Vsys)']/$($this.XPathNode)"
-        return $xPath
+        $returnXPath = $this.getBaseXPath()
+
+        # Add Name
+        if ($this.Name) {
+            $returnXPath += "/entry[@name='"
+            $returnXPath += $this.Name
+            $returnXPath += "']"
+        }
+
+        return $returnXPath
     }
 
     # Xml

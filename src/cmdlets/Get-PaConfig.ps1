@@ -1,9 +1,15 @@
 function Get-PaConfig {
 	Param (
-		[Parameter(Mandatory=$False,Position=0)]
+        [Parameter(Mandatory=$False,Position=0)]
 		[string]$Xpath = "/config",
 
         [Parameter(Mandatory=$False,Position=1)]
+		[string]$Vsys,
+
+        [Parameter(Mandatory=$False,Position=2)]
+		[string]$Device,
+
+        [Parameter(Mandatory=$False,Position=3)]
         [ValidateSet("get","show")]
         [string]$Action = "show"
     )
@@ -11,18 +17,23 @@ function Get-PaConfig {
     $VerbosePrefix = "Get-PaConfig:"
 
     if ($global:PaDeviceObject.Connected) {
-        $Response = $global:PaDeviceObject.invokeConfigQuery($Xpath,$Action)
+        $ConfigObject = New-Object PaConfigObject
+        
+        $XpathRx    = [regex] "\/config(\/devices\/entry\[@name='(?<device>.+?)'\])?(\/vsys\/entry\[@name='(?<vsys>.+?)'\])?(?<node>.+)?"
+        $XpathMatch = $XpathRx.Match($Xpath)
+        if ($XpathMatch.Success) {
+            $ConfigObject.Vsys       = $XpathMatch.Groups['vsys'].Value
+            $ConfigObject.Device     = $XpathMatch.Groups['device'].Value
+            $ConfigObject.ConfigNode = $XpathMatch.Groups['node'].Value
+            $global:testobject = $ConfigObject
+        } else {
+            Throw "$VerbosePrefix Xpath Invalid"
+        }
 
-        $rx = [regex] "\/.+?vsys\/entry.+?\/(.+)"
-        $ConfigObject = new-Object PaConfigObject
-        $XPathNode = $rx.Match($Xpath).Groups[1].Value
-        $Global:TestObject = "" | Select XPathNode,ManualXml
-        $Global:TestObject.XPathNode = $XPathNode
+        $Response = $global:PaDeviceObject.invokeConfigQuery($ConfigObject.getXPath(),$Action)
 
-        $ConfigObject.XpathNode = $XPathNode
-        $ConfigObject.ManualXml = $Response.response.result.$XPathNode.InnerXml
         return $ConfigObject
     } else {
-        Throw "$VerbosePrefix Not Connected, please use Get-PaConfig to connect before using other cmdlets."
+        Throw "$VerbosePrefix Not Connected, please use Get-PaDevice to connect before using other cmdlets."
     }
 }

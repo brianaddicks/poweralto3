@@ -96,14 +96,76 @@ function Invoke-PaSessionTracker {
     $SessionParameters.Remove("ShowProperties") | Out-Null
     $SessionParameters.Remove("NoClear") | Out-Null
 
-    for ($i = 1;$i -eq 1) {
+    $StopWatch  = [System.Diagnostics.Stopwatch]::StartNew() # used by Write-Progress so it doesn't slow the whole function down
+
+    # Header Function
+    function WriteHeader([int]$TotalSessionsMatched,[int]$ShownSessions) {
+        # Write top block of info.
+        Write-Host "Total Sessions Matched: $TotalSessionsMatched"
+        Write-Host "Sessions Shown: $ShownSessions"
+        Write-Host ""
+    }
+
+    # GetColumnLengths
+    function GetColumnLengths([array]$PropertiesDisplayed,[array]$Data) {
+        $ColumnLengths = @()
+        foreach ($Property in $PropertiesDisplayed) {
+            $CurrentMaxLength = $Property.Length
+            switch ($Property) {
+                TickCount {
+                    break
+                }
+                default {
+                    foreach ($Datum in $Data) {
+                        $CurrentLength = $Datum.$Property.ToString().Length
+                        if ($CurrentLength -gt $CurrentMaxLength) {
+                            $CurrentMaxLength = $CurrentLength
+                        }
+                    }
+                }
+            }
+
+            # Create Object add to array
+            $NewObject               = "" | Select-Object PropertyName,MaxLength
+            $NewObject.PropertyName  = $Property
+            $NewObject.MaxLength     = $CurrentMaxLength
+            $ColumnLengths          += $NewObject
+        }
+
+        return $ColumnLengths
+    }
+
+    # WriteColumnHeaders
+    function WriteColumnHeaders([array]$ColumnLengths) {
+        # Selection
+        Write-Host "  " -NoNewline
+        # Count
+        Write-Host "   " -NoNewline
+        
+        # Headers
+        foreach ($Column in $ColumnLengths) {
+            $ColumnLabel = $Column.PropertyName
+            $Length      = $Column.MaxLength
+            $ColumnLabel = $ColumnLabel.PadRight(($Length + 2)," ")
+            
+            Write-Host $ColumnLabel -NoNewline
+        }
+        Write-Host
+    }
+
+
+
+    While ($vkeycode -ne 81) {
+        #$press = $host.ui.rawui.readkey("NoEcho,IncludeKeyDown")
+        #$vkeycode = $press.virtualkeycode
+
         $OldSessions = $AllSessions | Select-Object *
         $Sessions = Get-PaSession @SessionParameters | Sort-Object StartTime
         $NewSessions = @()
         foreach ($Session in $Sessions[0..($Count-1)]) {
             $Lookup = $OldSessions | Where-Object { $_.Id -eq $Session.Id }
             if (!($Lookup)) {
-                $NewSessions += $Session | Select-Object *,TickCount
+                $NewSessions += $Session | Select-Object *,TickCount,Selected
             }
         }
 
@@ -121,143 +183,157 @@ function Invoke-PaSessionTracker {
         $AllSessions = $AllSessions | Select-Object * | Sort-Object StartTime -Descending
         $global:test3 = $AllSessions
 
-        if (!($NoClear)) {
-            Clear-Host
-        }
-
-        # Write top block of info.
-        Write-Host "Total Sessions Matched: $($Sessions.Count)"
-        Write-Host "Sessions Shown: $($AllSessions.Count)"
-        Write-Host ""
-        #Extra Space for line counter
-        Write-Host "   " -NoNewLine
-
-        # Find Column Length and output Headers
-        $LengthValues = @()
-        foreach ($p in $ShowProperties) {
-
-            # Find length of header
-            if ($p -eq "TickCount") {
-                $ValueMaxLength = 0
-            } else {
-                $global:test = $Sessions
-
-                $ValueMaxLength = 0
-                foreach ($s in $AllSessions) {
-                    $CurrentLength = $s.$p.ToString().Length
-                    if ($CurrentLength -gt $ValueMaxLength) {
-                        $ValueMaxLength = $CurrentLength
-                    }
-                }
-            }
-            if ($p.Length -gt $ValueMaxLength) {
-                Write-Verbose "$VerbosePrefix CurrentValue: $ValueMaxLength; NameLength: $($p.Length)"
-                $ValueMaxLength = $p.Length
-            }
-
-            # Log Column Lengths
-            $New = "" | Select-Object Name,MaxLength
-            $New.Name = $p
-            if ($p -eq "StartTime") {
-                $New.MaxLength = ([string](Get-Date -Format "MM/dd/yy HH:mm:ss")).Length
-            } else {
-                $New.MaxLength = $ValueMaxLength
-            }
-            $LengthValues += $New
-            Write-Verbose "$VerbosePrefix Name: $($New.Name); MaxLength: $($New.MaxLength)"
-
-            # Write Headers
-            $Header = $p.PadRight(($ValueMaxLength + 2)," ")
-            Write-Host $Header -NoNewline
-        }
-
-        # Correct Start Time Padding
-        
-        $global:LengthValues = $LengthValues
-        
-        # Add NewLine after Headers
-        Write-Host
-        $global:LengthValues = $LengthValues
-
-
-
-        $SessionCounter = 0
-        foreach ($Session in $AllSessions) {
-            if ($Session.TickCount -gt 0) {
-                $Session.TickCount++
-            } else {
-                $Session.TickCount = 1
-            }
-            
-            $SessionCounter++
-            $SessionCounterString = "$SessionCounter".PadRight(3," ")
-            Write-Host $SessionCounterString -NoNewline
-
-            $Lookup = $OldSessions | Where-Object { $_.Id -eq $Session.Id }
-            $ReverseLookup = $Sessions | Where-Object { $_.Id -eq $Session.Id }
-
-            foreach ($p in $LengthValues) {
-                $PropertyName = $p.Name
-                Write-Verbose "$VerbosePrefix PropertyName: $PropertyName"
-                $PropertyValue  = $Session.$PropertyName.ToString()
-                Write-Verbose "$VerbosePrefix PropertyValue: $PropertyValue"
-                $PropertyLength = $p.MaxLength
-                Write-Verbose "$VerbosePrefix PropertyLength: $PropertyLength"
-                $Value = [string]$PropertyValue.PadRight(($PropertyLength + 2)," ")
-
-                $WriteHostParams = @{}
-                $WriteHostParams.NoNewLine = $true
-
-                # Format Date, I suspect there's a better way to handle this
-                if ($PropertyName -eq "StartTime") {
-                    $WriteHostParams.Object = ([string](Get-Date -Date $Value -Format "MM/dd/yy HH:mm:ss")).PadRight(($PropertyLength + 2)," ")
-                } else {
-                    $WriteHostParams.Object = $Value
+        $LoopCount = 1
+        while ($StopWatch.Elapsed.TotalMilliseconds -lt ($Interval * 1000)) {
+                if (!($NoClear)) {
+                    Clear-Host
                 }
 
-                if (($ReverseLookup) -and (!($Lookup))) {
-                    # New Session
-                    $WriteHostParams.ForegroundColor = "DarkBlue"
-                    switch ($PropertyName) {
-                        "State" {
-                            switch ($Value) {
-                                {$_ -match "active"} {
-                                    $WriteHostParams.ForegroundColor = "DarkGreen"
-                                }
-                                {$_ -match "discard"} {
-                                    $WriteHostParams.ForegroundColor = "DarkRed"
-                                }
-                                default {
-                                    # Don't change anything (yet)
-                                }
+                # Write Header Block
+                WriteHeader $Sessions.Count $AllSessions.Count
+                
+                #Extra Space for line counter
+                Write-Host "     " -NoNewLine
+
+                # Find Column Length and output Headers
+                $LengthValues = @()
+                foreach ($p in $ShowProperties) {
+
+                    # Find length of header
+                    if ($p -eq "TickCount") {
+                        $ValueMaxLength = 0
+                    } else {
+                        $global:test = $Sessions
+
+                        $ValueMaxLength = 0
+                        foreach ($s in $AllSessions) {
+                            $CurrentLength = $s.$p.ToString().Length
+                            if ($CurrentLength -gt $ValueMaxLength) {
+                                $ValueMaxLength = $CurrentLength
                             }
-                            break
                         }
                     }
-                } elseif (($Lookup) -and (!($ReverseLookup))) {
-                    # Inactive Session
-                    $WriteHostParams.ForegroundColor = "DarkGray"
+                    if ($p.Length -gt $ValueMaxLength) {
+                        Write-Verbose "$VerbosePrefix CurrentValue: $ValueMaxLength; NameLength: $($p.Length)"
+                        $ValueMaxLength = $p.Length
+                    }
+
+                    # Log Column Lengths
+                    $New = "" | Select-Object Name,MaxLength
+                    $New.Name = $p
+                    if ($p -eq "StartTime") {
+                        $New.MaxLength = ([string](Get-Date -Format "MM/dd/yy HH:mm:ss")).Length
+                    } else {
+                        $New.MaxLength = $ValueMaxLength
+                    }
+                    $LengthValues += $New
+                    Write-Verbose "$VerbosePrefix Name: $($New.Name); MaxLength: $($New.MaxLength)"
+
+                    # Write Headers
+                    $Header = $p.PadRight(($ValueMaxLength + 2)," ")
+                    Write-Host $Header -NoNewline
                 }
-                Write-Host @WriteHostParams
+                
+                # Add NewLine after Headers
+                Write-Host
+            
+                $SessionCounter = 0
+                foreach ($Session in $AllSessions) {
+                    if ($Session.TickCount -gt 0) {
+                        $Session.TickCount++
+                    } else {
+                        $Session.TickCount = 1
+                    }
+                    
+                    if ($Session.Selected) {
+                        Write-Host "*" -NoNewline
+                    } else {
+                        Write-Host " " -NoNewline
+                    }
+                    
+                    $SessionCounter++
+                    $SessionCounterString = "$SessionCounter".PadRight(3," ")
+                    Write-Host $SessionCounterString -NoNewline
+
+                    $Lookup = $OldSessions | Where-Object { $_.Id -eq $Session.Id }
+                    $ReverseLookup = $Sessions | Where-Object { $_.Id -eq $Session.Id }
+
+                    foreach ($p in $LengthValues) {
+                        $PropertyName = $p.Name
+                        Write-Verbose "$VerbosePrefix PropertyName: $PropertyName"
+                        $PropertyValue  = $Session.$PropertyName.ToString()
+                        Write-Verbose "$VerbosePrefix PropertyValue: $PropertyValue"
+                        $PropertyLength = $p.MaxLength
+                        Write-Verbose "$VerbosePrefix PropertyLength: $PropertyLength"
+                        $Value = [string]$PropertyValue.PadRight(($PropertyLength + 2)," ")
+
+                        $WriteHostParams = @{}
+                        $WriteHostParams.NoNewLine = $true
+
+                        # Format Date, I suspect there's a better way to handle this
+                        if ($PropertyName -eq "StartTime") {
+                            $WriteHostParams.Object = ([string](Get-Date -Date $Value -Format "MM/dd/yy HH:mm:ss")).PadRight(($PropertyLength + 2)," ")
+                        } else {
+                            $WriteHostParams.Object = $Value
+                        }
+
+                        if (($ReverseLookup) -and (!($Lookup))) {
+                            # New Session
+                            $WriteHostParams.ForegroundColor = "DarkBlue"
+                            switch ($PropertyName) {
+                                "State" {
+                                    switch ($Value) {
+                                        {$_ -match "active"} {
+                                            $WriteHostParams.ForegroundColor = "DarkGreen"
+                                        }
+                                        {$_ -match "discard"} {
+                                            $WriteHostParams.ForegroundColor = "DarkRed"
+                                        }
+                                        default {
+                                            # Don't change anything (yet)
+                                        }
+                                    }
+                                    break
+                                }
+                            }
+                        } elseif (($Lookup) -and (!($ReverseLookup))) {
+                            # Inactive Session
+                            $WriteHostParams.ForegroundColor = "DarkGray"
+                        }
+                        Write-Host @WriteHostParams
+                    }
+                    Write-Host
+                }
+
+                # Write blank lines
+                $BlankLines = $Count - $AllSessions.Count
+                for ($b = 0;$b -lt $BlankLines;$b++) {
+                    Write-Host
+                }
+
+            #Start-Sleep $Interval
+            # Show Progress Bar between API Calls
+<#
+            if ($StopWatch.Elapsed.TotalMilliseconds -ge ($LoopCount * 1000)) {
+                $LoopCount++
+                $PercentComplete = [math]::truncate($LoopCount / $Interval * 100)
+                Write-Progress -Activity "Waiting to refresh sessions: $($Interval - $LoopCount)..." -PercentComplete $PercentComplete
+                if ($StopWatch.Elapsed.TotalMilliseconds -ge ($Interval * 1000)) {
+                    $StopWatch.Reset()
+                    $StopWatch.Start()
+                    $LoopCount = 1
+                    Write-Progress -Activity "Refreshing..." -PercentComplete 100 -Completed
+                }
+            }#>
+<#
+            for ($p = 0;$p -lt $Interval;$p++) {
+                $PercentComplete = ($p / $Interval) * 100
+                $Activity = "Waiting to refresh sessions: $($Interval - $p)..."
+                Write-Progress -Activity $Activity -PercentComplete $PercentComplete
+                Start-Sleep 1
             }
-            Write-Host
+            Write-Progress -Activity "Refreshing..." -PercentComplete 100#>
+            
         }
-
-        # Write blank lines
-        $BlankLines = $Count - $AllSessions.Count
-        for ($b = 0;$b -lt $BlankLines;$b++) {
-            Write-Host
-        }
-
-        #Start-Sleep $Interval
-        # Show Progress Bar between API Calls
-        for ($p = 0;$p -lt $Interval;$p++) {
-            $PercentComplete = ($p / $Interval) * 100
-            $Activity = "Waiting to refresh sessions: $($Interval - $p)..."
-            Write-Progress -Activity $Activity -PercentComplete $PercentComplete
-            Start-Sleep 1
-        }
-        Write-Progress -Activity "Refreshing..." -PercentComplete 100
-        Write-Progress -Activity "Refreshing..." -PercentComplete 100 -Completed
     }
 }
