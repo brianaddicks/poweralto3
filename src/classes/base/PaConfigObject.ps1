@@ -7,20 +7,25 @@ class PaConfigObject {
     
     # BaseXPath
     [string] getBaseXPath() {
-        $xPath = "/config/devices/entry"
-        
-        # Add Device
-        if ($this.Device) {
-            $xPath += "[@name='$($this.Device)']"
-        }
-        
-        # Add Vsys
-        $xPath += "/vsys/entry"
-        if ($this.Vsys) {
-            $xPath += "[@name='$($this.Vsys)']"
-        }
+        $xPath += "/config"
+        if ($this.ConfigNode -match "mgt-config") {
+            $xPath += $this.ConfigNode
+        } else {
+            $xPath += "/devices/entry"
+            
+            # Add Device
+            if ($this.Device) {
+                $xPath += "[@name='$($this.Device)']"
+            }
+            
+            # Add Vsys
+            $xPath += "/vsys/entry"
+            if ($this.Vsys) {
+                $xPath += "[@name='$($this.Vsys)']"
+            }
 
-        $xPath += $this.ConfigNode
+            $xPath += $this.ConfigNode
+        }
 
         return $xPath
     }

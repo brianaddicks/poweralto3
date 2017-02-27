@@ -5,10 +5,19 @@ class PaAdmin : PaConfigObject {
     [bool]$PublicKey
     [string]$AdminType
     [string]$AdminProfile
-    [array]$Vsys
+    [array]$VsysAccess
     [string]$PasswordProfile
 
     [string]$ConfigNode = "/mgt-config/users"
+
+    # BaseXPath
+    [string] getBaseXPath() {
+        $xPath = "/config"
+
+        $xPath += $this.ConfigNode
+
+        return $xPath
+    }
 
     # XPath
     [string] getXPath() {
