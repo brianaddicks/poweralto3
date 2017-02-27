@@ -1,6 +1,6 @@
 class PaConfigObject {
     # Generic Properties
-    [string]$Vsys
+    [string]$Vsys = 'shared'
     [string]$Device
     [string]$ConfigNode
     hidden [string]$ManualXml
@@ -8,7 +8,8 @@ class PaConfigObject {
     # BaseXPath
     [string] getBaseXPath() {
         $xPath += "/config"
-        if ($this.ConfigNode -match "mgt-config") {
+        if ($this.Vsys -eq 'shared') {
+            $xPath += '/shared/'
             $xPath += $this.ConfigNode
         } else {
             $xPath += "/devices/entry"
@@ -24,6 +25,7 @@ class PaConfigObject {
                 $xPath += "[@name='$($this.Vsys)']"
             }
 
+            $xPath += '/'
             $xPath += $this.ConfigNode
         }
 

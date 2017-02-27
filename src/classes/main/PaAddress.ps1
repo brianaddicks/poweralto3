@@ -4,7 +4,7 @@ class PaAddress : PaConfigObject {
     [string]$Type
     [string]$Address
     [array]$Tags
-    [string]$ConfigNode = "/address"
+    [string]$ConfigNode = "address"
 
     # XPath
     [string] getXPath() {

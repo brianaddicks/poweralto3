@@ -1,23 +1,18 @@
-class PaAdmin : PaConfigObject {
+class PaAuthenticationProfile : PaConfigObject {
     [string]$Name
-    [string]$AuthProfile
-    [bool]$ClientCert
-    [bool]$PublicKey
-    [string]$AdminType
-    [string]$AdminProfile
-    [array]$VsysAccess
-    [string]$PasswordProfile
+    [string]$Type
+    [string]$UserDomain
+    [array]$AllowList
+    [int]$FailedAttempts
+    [int]$LockoutTime
+    [string]$ServerProfile
+    [string]$LoginAttribute
+    [string]$PasswordExpiryWarning
+    [string]$UsernameModifier
+    [bool]$RetrieveGroup
+    [string]$KerberosRealm
 
-    [string]$ConfigNode = "mgt-config/users"
-
-    # BaseXPath
-    [string] getBaseXPath() {
-        $xPath = "/config"
-
-        $xPath += $this.ConfigNode
-
-        return $xPath
-    }
+    [string]$ConfigNode = "authentication-profile"
 
     # XPath
     [string] getXPath() {
