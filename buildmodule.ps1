@@ -46,7 +46,7 @@ $CmdletHeader = @'
 
 '@
 
-$HelperFunctionHeader = @'
+$HelperHeader = @'
 ###############################################################################
 ## Start Helper Functions
 ###############################################################################
@@ -73,14 +73,15 @@ $FunctionHeader = @'
 # Combining function
 function CombinePsFiles {
     [CmdletBinding()]
+    [OutputType([String])]
     Param (
     	[Parameter(Mandatory=$True,Position=0)]
 		[array]$CmdletFiles,
 
-        [Parameter(Mandatory=$True,Position=1)]
+        [Parameter(Mandatory=$False,Position=1)]
         [array]$HelperFiles,
 
-        [Parameter(Mandatory=$True,Position=2)]
+        [Parameter(Mandatory=$False,Position=2)]
         [array]$ClassFiles,
 
         [Parameter(Mandatory=$False)]
@@ -102,9 +103,9 @@ function CombinePsFiles {
     $ReturnObject += $ClassHeader
 
     foreach ($File in $ClassFiles) {
-        $File = ls $File.FullName
+        $File = Get-ChildItem $File.FullName
         $ReturnObject += ($FunctionHeader + $File.BaseName)
-        $ReturnObject += gc $File
+        $ReturnObject += Get-Content $File
         $ReturnObject += ""
     }
 
@@ -112,20 +113,22 @@ function CombinePsFiles {
     $ReturnObject += $CmdletHeader
 
     foreach ($File in $CmdletFiles) {
-        $File = ls $File.FullName
+        $File = Get-ChildItem $File.FullName
         $ReturnObject += ($FunctionHeader + $File.BaseName)
-        $ReturnObject += gc $File
+        $ReturnObject += Get-Content $File
         $ReturnObject += ""
     }
 
     # Add Helpers
-    $ReturnObject += $HelperHeader
+    if ($HelperFiles) {
+        $ReturnObject += $HelperHeader
 
-    foreach ($File in $HelperFiles) {
-        $File = ls $File.FullName
-        $ReturnObject += ($FunctionHeader + $File.BaseName)
-        $ReturnObject += gc $File
-        $ReturnObject += ""
+        foreach ($File in $HelperFiles) {
+            $File = Get-ChildItem $File.FullName
+            $ReturnObject += ($FunctionHeader + $File.BaseName)
+            $ReturnObject += Get-Content $File
+            $ReturnObject += ""
+        }
     }
 
     $ReturnObject += $Footer
@@ -135,14 +138,16 @@ function CombinePsFiles {
 
 # List Class files in correct order
 $ClassFiles = @()
-$ClassFiles += ls ($ClassPath + '/base')
-$ClassFiles += ls ($ClassPath + '/helper')
-$ClassFiles += ls ($ClassPath + '/main')
+$ClassFiles += Get-ChildItem ($ClassPath + '/base')
+$ClassFiles += Get-ChildItem ($ClassPath + '/helper')
+$ClassFiles += Get-ChildItem ($ClassPath + '/main')
 
 # do the combine
 $CombineParams = @{}
-$CombineParams.CmdletFiles    = ls $CmdletPath
-$CombineParams.HelperFiles    = ls $HelperPath
+$CombineParams.CmdletFiles    = Get-ChildItem $CmdletPath
+if ((Get-ChildItem $HelperPath).Count -gt 0) {
+    $CombineParams.HelperFiles    = Get-ChildItem $HelperPath
+}
 $CombineParams.ClassFiles     = $ClassFiles
 $CombineParams.CmdletHeader   = $CmdletHeader
 $CombineParams.HelperHeader   = $HelperHeader
