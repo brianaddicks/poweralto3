@@ -1,4 +1,4 @@
-function Get-PaRadiusProfile {
+function Get-PaKerberosProfile {
 	Param (
 		[Parameter(Mandatory=$False,Position=0)]
 		[string]$Name,
@@ -10,30 +10,29 @@ function Get-PaRadiusProfile {
 		[string]$Device
     )
     
-    $VerbosePrefix = "Get-PaRadiusProfile:"
+    $VerbosePrefix = "Get-PaKerberosProfile:"
 
     if ($global:PaDeviceObject.Connected) {
-        $InfoObject        = New-Object PaRadiusProfile
+        $InfoObject        = New-Object PaKerberosProfile
         $InfoObject.Name   = $Name
         $InfoObject.Vsys   = $Vsys
         $InfoObject.Device = $Device
         $Response          = Get-PaConfig $InfoObject.GetXpath()
 
-        $ConfigNode = 'radius'
+        $ConfigNode = 'kerberos'
 
         $ReturnObject = @()
         foreach ($entry in $Response.response.result.$ConfigNode.entry) {
-            $NewEntry      = New-Object PaRadiusProfile
+            $NewEntry      = New-Object PaKerberosProfile
             $ReturnObject += $NewEntry
 
             $NewEntry.Vsys   = $Vsys
             $NewEntry.Device = $Device
 
             $NewEntry.Name         = $entry.name
-            $NewEntry.Timeout      = $entry.timeout
-            $NewEntry.Retries      = $entry.retries
             $NewEntry.Servers      = @()
 
+            # bool values
             $BoolProperties = @{ 'AdminUseOnly' = 'admin-use-only' }
 
             foreach ($Bool in $BoolProperties.GetEnumerator()) {
@@ -45,7 +44,7 @@ function Get-PaRadiusProfile {
             foreach ($Server in $entry.server.entry) {
                 $NewServer         = New-Object PaAuthServer
                 $NewServer.Name    = $Server.name
-                $NewServer.Server  = $Server.'ip-address'
+                $NewServer.Server  = $Server.host
                 $NewServer.Port    = $Server.port
                 $NewEntry.Servers += $NewServer
             }
