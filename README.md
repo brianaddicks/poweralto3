@@ -19,7 +19,11 @@ Install-Module PowerAlto3
 
 ```powershell
 # Runs install.ps1 from this repo.
+
+# Downloads to PSModulePath if it exists, otherwise goes to current directory
 Invoke-Expression ((Invoke-WebRequest -Uri "https://git.io/pa3install").Content)
+
+
 ```
 
 #### The Harder-But-Still-Pretty-Easy Way
