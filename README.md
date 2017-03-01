@@ -11,12 +11,14 @@ https://github.com/brianaddicks/poweralto2
 #### The Easy Way
 
 ```powershell
+# Requires WMF5, but so does this module.
 Install-Module PowerAlto3
 ```
 
 #### The Not-So-Easy Way
 
 ```powershell
+# Runs install.ps1 from this repo.
 Invoke-Expression ((Invoke-WebRequest -Uri "https://git.io/pa3install").Content)
 ```
 
