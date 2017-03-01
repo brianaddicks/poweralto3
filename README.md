@@ -16,7 +16,7 @@ Install-Module PowerAlto3
 ```
 
 ## Known Issues
-<<<<<<< HEAD
+
 * Powershell Core will give you trouble when trying to use -SkipCertificateCheck for Invoke-RestMethod. See [here](https://github.com/PowerShell/PowerShell/issues/2211) for more details. Use the following command to fix for MacOS/OSX.
 =======
 * Powershell Core will give you trouble when trying to use -SkipCertificateCheck for Invoke-RestMethod. See [here](https://github.com/PowerShell/PowerShell/issues/2211) for more deatils. Use the following command to fix for MacOS/OSX.
