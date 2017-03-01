@@ -1,9 +1,9 @@
 Deploy Module {
     By PSGalleryModule {
-        FromSource MyModuleNameHere
+        FromSource module
         To PSGallery
         WithOptions @{
-            ApiKey = $ENV:NugetApiKey
+            ApiKey = $global:nugetapikey
         }
     }
 }
