@@ -5,6 +5,15 @@ This module is still in the early development phase.  For a functioning module p
 
 https://github.com/brianaddicks/poweralto2
 
+## Installation
+
+```powershell
+# The Easy Way
+Install-Module PowerAlto3
+
+# The Not-So-Easy Way
+
+```
 
 ## Known Issues
 * Powershell Core will give you trouble when trying to use -SkipCertificateCheck for Invoke-RestMethod. See [here](https://github.com/PowerShell/PowerShell/issues/2211) for more deatils. Use the following command to fix for MacOS/OSX.
