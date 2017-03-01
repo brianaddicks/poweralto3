@@ -1,4 +1,5 @@
 function Get-PaConfig {
+    [CmdletBinding()]
 	Param (
         [Parameter(Mandatory=$False,Position=0)]
 		[string]$XPath = "/config",

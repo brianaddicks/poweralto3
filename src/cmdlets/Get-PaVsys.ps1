@@ -1,4 +1,5 @@
 function Get-PaVsys {
+    [CmdletBinding()]
 	Param (
     )
     
@@ -17,7 +18,7 @@ function Get-PaVsys {
         foreach ($Match in $Matches) {
             $ReturnObject += ($Match.Groups[1].Value).Trim()
         }
-        
+
         return $ReturnObject
     } else {
         Throw "$VerbosePrefix Not Connected, please use Get-PaConfig to connect before using other cmdlets."

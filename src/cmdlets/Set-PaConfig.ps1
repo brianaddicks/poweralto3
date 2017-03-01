@@ -1,4 +1,5 @@
 function Set-PaConfig {
+    [CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$True,Position=0,ParameterSetName="manual")]
 		[string]$Xpath = "/config",

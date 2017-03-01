@@ -10,30 +10,11 @@ $HelperPath = $SourcePath + "/" + "helpers"
 $ClassPath  = $SourcePath + "/" + "classes"
 
 # Destinations
-$DestinationDirectory = "module"
+$DestinationDirectory = $ModuleName
 $DestinationPath = $ScriptPath + "/" + $DestinationDirectory
 
 $ModuleFile   = $DestinationPath + "/" + $ModuleName + ".psm1"
 $ManifestFile = $DestinationPath + "/" + $ModuleName + ".psd1"
-
-###############################################################################
-# Create Manifest
-
-# PsGallery requires: module name, version, description, and author
-
-$Description = "PowerAlto provides an interface to the Palo Alto Firewall API."
-
-$ManifestParams = @{ Path               = $ManifestFile
-                     ModuleVersion      = '3.0'
-                     Author             = 'Brian Addicks'
-                     RootModule         = 'PowerAlto3.psm1'
-                     CompanyName        = 'Lockstep Technology Group'
-                     Description        = $Description
-                     LicenseUri         = 'https://raw.githubusercontent.com/brianaddicks/poweralto3/master/LICENSE'
-                     ProjectUri         = 'https://github.com/brianaddicks/poweralto3'
-                     PowerShellVersion  = '5.0' }
-
-New-ModuleManifest @ManifestParams
 
 ###############################################################################
 # Headers
@@ -166,3 +147,28 @@ $CombineParams.Footer         = $Footer
 $Output = CombinePsFiles @CombineParams
 
 $Output | Out-File $ModuleFile -Force
+
+###############################################################################
+# Create Manifest
+
+# PsGallery requires: module name, version, description, and author
+
+$Description = "PowerAlto provides an interface to the Palo Alto Firewall API."
+$CmdletsToExport = @()
+foreach ($file in $CombineParams.CmdletFiles) {
+    $CmdletsToExport += $file.BaseName
+}
+
+$ManifestParams = @{ Path               = $ManifestFile
+                     ModuleVersion      = '3.0.1'
+                     Author             = 'Brian Addicks'
+                     RootModule         = 'PowerAlto3.psm1'
+                     CompanyName        = 'Lockstep Technology Group'
+                     Description        = $Description
+                     LicenseUri         = 'https://raw.githubusercontent.com/brianaddicks/poweralto3/master/LICENSE'
+                     ProjectUri         = 'https://github.com/brianaddicks/poweralto3'
+                     CmdletsToExport    = $CombineParams.CmdletFiles.BaseName
+                     FunctionsToExport  = @()
+                     PowerShellVersion  = '5.0' }
+
+New-ModuleManifest @ManifestParams

@@ -1,4 +1,5 @@
 function Get-PaRadiusProfile {
+    [CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$False,Position=0)]
 		[string]$Name,

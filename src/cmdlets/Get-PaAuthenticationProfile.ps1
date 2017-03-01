@@ -1,4 +1,5 @@
 function Get-PaAuthenticationProfile {
+    [CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$False,Position=0)]
 		[string]$Name,
