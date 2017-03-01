@@ -1,16 +1,32 @@
+[CmdletBinding()]
+Param (
+    [Parameter(Mandatory=$False,Position=0)]
+    [string]$Destination
+)
+
 $ModuleName = 'PowerAlto3'
-if (Test-Path env:\PSMODULEPATH) {
-    $ModulePath = $env:PSMODULEPATH
-    if ($ModulePath -match ";") {
-        # Windows System
-        $SplitChar = ";"
+
+if ($Destination) {
+    $ResolvedPath = Resolve-Path $Destination
+    if (Test-Path $ResolvedPath) {
+        $DesiredPath = $ResolvedPath
     } else {
-        $SplitChar = ":"
+        Throw "Invalid Path Specified."
     }
-    $Split = $ModulePath -split $SplitChar
-    $DesiredPath = $Split | ? { $_ -match "User" }
 } else {
-    $DesiredPath = Join-Path -Path (Get-Location) -ChildPath $ModuleName
+    if (Test-Path env:\PSMODULEPATH) {
+        $ModulePath = $env:PSMODULEPATH
+        if ($ModulePath -match ";") {
+            # Windows System
+            $SplitChar = ";"
+        } else {
+            $SplitChar = ":"
+        }
+        $Split = $ModulePath -split $SplitChar
+        $DesiredPath = $Split | ? { $_ -match "User" }
+    } else {
+        $DesiredPath = Join-Path -Path (Get-Location) -ChildPath $ModuleName
+    }
 }
 
 # Create Directory
