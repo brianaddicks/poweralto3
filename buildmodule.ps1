@@ -18,10 +18,19 @@ $ManifestFile = $DestinationPath + "/" + $ModuleName + ".psd1"
 
 ###############################################################################
 # Create Manifest
-$ManifestParams = @{ Path = $ManifestFile
+
+# PsGallery requires: module name, version, description, and author
+
+$Description = "PowerAlto provides an interface to the Palo Alto Firewall API."
+
+$ManifestParams = @{ Path               = $ManifestFile
                      ModuleVersion      = '3.0'
                      Author             = 'Brian Addicks'
                      RootModule         = 'PowerAlto3.psm1'
+                     CompanyName        = 'Lockstep Technology Group'
+                     Description        = $Description
+                     LicenseUri         = 'https://raw.githubusercontent.com/brianaddicks/poweralto3/master/LICENSE'
+                     ProjectUri         = 'https://github.com/brianaddicks/poweralto3'
                      PowerShellVersion  = '5.0' }
 
 New-ModuleManifest @ManifestParams
