@@ -35,6 +35,6 @@ Click that green button near the top right of your browser and pick your poison.
 
 ## Known Issues
 
-* Powershell Core will give you trouble when trying to use -SkipCertificateCheck for Invoke-RestMethod. See [here](https://github.com/PowerShell/PowerShell/issues/2211) for more deatils. Use the following command to fix for MacOS/OSX.
+* Powershell Core will give you trouble when trying to use -SkipCertificateCheck for Invoke-RestMethod. See [here](https://github.com/PowerShell/PowerShell/issues/2211) for more details. Use the following command to fix for MacOS/OSX.
 
     brew install curl --with-openssl
