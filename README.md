@@ -12,7 +12,10 @@ https://github.com/brianaddicks/poweralto2
 Install-Module PowerAlto3
 
 # The Not-So-Easy Way
+Invoke-Expression ((Invoke-WebRequest -Uri "https://git.io/pa3install").Content)
 
+# The Harder-But-Still-Pretty-Easy Way
+# Click that green button near the top right of your browser and pick your poison.
 ```
 
 ## Known Issues
