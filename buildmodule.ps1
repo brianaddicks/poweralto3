@@ -45,11 +45,6 @@ $HelperHeader = @'
 '@
 
 $Footer = @'
-###############################################################################
-## Export Cmdlets
-###############################################################################
-
-Export-ModuleMember *-*
 '@
 
 $FunctionHeader = @'
@@ -167,8 +162,8 @@ $ManifestParams = @{ Path               = $ManifestFile
                      Description        = $Description
                      LicenseUri         = 'https://raw.githubusercontent.com/brianaddicks/poweralto3/master/LICENSE'
                      ProjectUri         = 'https://github.com/brianaddicks/poweralto3'
-                     CmdletsToExport    = $CombineParams.CmdletFiles.BaseName
-                     FunctionsToExport  = @()
+                     CmdletsToExport    = '*'
+                     FunctionsToExport  = '*'
                      PowerShellVersion  = '5.0' }
 
 New-ModuleManifest @ManifestParams
