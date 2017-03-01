@@ -21,7 +21,10 @@ Install-Module PowerAlto3
 # Runs install.ps1 from this repo.
 
 # Downloads to PSModulePath if it exists, otherwise goes to current directory
-Invoke-Expression ((Invoke-WebRequest -Uri "https://git.io/pa3install").Content)
+Invoke-Expression (((Invoke-WebRequest -Uri "https://git.io/pa3install").Content) + ';DownloadPowerAlto3')
+
+# Downloads to desired Path (replace 'YOURPATH').
+Invoke-Expression (((Invoke-WebRequest -Uri "https://git.io/pa3install").Content) + ';DownloadPowerAlto3 -Destination YOURPATH')
 
 
 ```
