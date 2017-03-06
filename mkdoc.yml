@@ -1,7 +1,1 @@
-site_name: PowerAlto3 Docs
-repo_url: https://github.com/brianaddicks/poweralto3
-theme: readthedocs
-pages:
-  - Home: index.md
-  - Cmdlets:
-    - Get-PaDevice: cmdlets/Get-PaDevice.ps1
+site_name: My Docs
