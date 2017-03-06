@@ -69,11 +69,6 @@ PowerShellVersion = '5.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-<#FunctionsToExport = @('Get-PaAdmin', 'Get-PaAuthenticationProfile', 'Get-PaConfig', 
-               'Get-PaDevice', 'Get-PaKerberosProfile', 'Get-PaLdapProfile', 
-               'Get-PaPasswordProfile', 'Get-PaRadiusProfile', 'Get-PaSession', 
-               'Get-PaTacacsProfile', 'Get-PaVsys', 'Invoke-PaOperation', 
-               'Invoke-PaSessionTracker', 'Set-PaConfig')#>
 FunctionsToExport = @('*')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
