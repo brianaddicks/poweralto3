@@ -1,5 +1,4 @@
 function Get-PaDevice {
-    [CmdletBinding()]
 	<#
 	.SYNOPSIS
 		Establishes initial connection to Palo Alto API.
@@ -36,8 +35,8 @@ function Get-PaDevice {
 
     .PARAMETER Quiet
 		When used, the cmdlet returns nothing on success.
-    
 	#>
+	[CmdletBinding(DefaultParameterSetName = 'keyonly')]
 
 	Param (
 		[Parameter(Mandatory=$True,Position=0)]
