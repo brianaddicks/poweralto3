@@ -11,10 +11,13 @@ function Get-PaDevice {
 		The cmdlet returns an object containing details of the connection, but this can be discarded or saved as desired; the returned object is not necessary to provide to further calls to the API.
 	
 	.EXAMPLE
-		Get-PaDevice "pa.example.com" "LUFRPT1asdfPR2JtSDl5M2tjfdsaTktBeTkyaGZMTURasdfTTU9BZm89OGtKN0F"
+		Get-PaDevice -DeviceAddress "pa.example.com" -ApiKey "LUFRPT1asdfPR2JtSDl5M2tjfdsaTktBeTkyaGZMTURasdfTTU9BZm89OGtKN0F"
 		
 		Connects to Palo Alto Device using the default port (443) over SSL (HTTPS) using an API Key
-		
+	.EXAMPLE
+		Get-PaDevice -DeviceAddress "pa.example.com" -Credential (Get-Credential)
+
+		Prompts the user for username and password and connects to the Palo Alto Device with those creds.  This will generate a keygen call and the user's API Key will be used for all subsequent calls.
 	.PARAMETER DeviceAddress
 		Fully-qualified domain name for the Palo Alto Device. Don't include the protocol ("https://" or "http://").
 
@@ -36,17 +39,17 @@ function Get-PaDevice {
     .PARAMETER Quiet
 		When used, the cmdlet returns nothing on success.
 	#>
-	[CmdletBinding(DefaultParameterSetName = 'keyonly')]
+	[CmdletBinding(DefaultParameterSetName = 'ApiKey')]
 
 	Param (
 		[Parameter(Mandatory=$True,Position=0)]
 		[ValidatePattern("\d+\.\d+\.\d+\.\d+|(\w\.)+\w")]
 		[string]$DeviceAddress,
 
-        [Parameter(ParameterSetName="keyonly",Mandatory=$True,Position=1)]
+        [Parameter(ParameterSetName="ApiKey",Mandatory=$True,Position=1)]
         [string]$ApiKey,
 
-        [Parameter(ParameterSetName="credential",Mandatory=$True,Position=1)]
+        [Parameter(ParameterSetName="Credential",Mandatory=$True,Position=1)]
         [System.Management.Automation.CredentialAttribute()]$Credential,
 
 		[Parameter(Mandatory=$False,Position=2)]

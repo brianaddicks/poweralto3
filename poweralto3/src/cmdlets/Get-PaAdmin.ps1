@@ -1,4 +1,31 @@
 function Get-PaAdmin {
+    <#
+	.SYNOPSIS
+		Pulls locally configured Administrator accounts for a Palo Alto Device.
+		
+	.DESCRIPTION
+        Pulls locally configured Administrator accounts for a Palo Alto Device.
+
+	.EXAMPLE
+		Get-PaAdmin
+		
+		Returns all locally configured Administrator accounts.
+
+	.EXAMPLE
+		Get-PaAdmin -Name "myadmin"
+
+		Returns a single Administrator account named "myadmin".
+
+	.PARAMETER Name
+		Name of desired Administrator account to query.
+
+    .PARAMETER Vsys
+		Specifies the Vsys to query Administrator accounts in.
+		
+	.PARAMETER Device
+		Specifies the Device to query accounts from in Panorama.
+	
+	#>
     [CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$False,Position=0)]

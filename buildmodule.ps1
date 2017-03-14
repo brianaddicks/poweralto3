@@ -11,6 +11,9 @@ Param (
 # Create Manifest
 
 # PsGallery requires: module name, version, description, and author
+$ModuleName = Get-Location | Split-Path -Leaf
+
+$ManifestFile = Resolve-Path "./$ModuleName/$ModuleName.psd1"
 
 $Description = "@
 PowerAlto provides an interface to the Palo Alto Firewall API.
@@ -52,3 +55,66 @@ if (Test-Path $ManifestFile) {
     New-ModuleManifest @ManifestParams
 }
 
+# Create Documentation
+
+# Add new docs to mkdocs file, didn't have much luck with any of the powershell yaml modules out there, so here's the cheap way to do it.
+
+$MkdocsTheme = "readthedocs"
+$MkdocsSiteName = "$ModuleName Docs"
+$Pages = @{}
+$Pages.Home = 'index.md'
+$Pages.Cmdlets = @{}
+
+# Import Our Module
+$Remove  = Remove-Module $ModuleName
+$Import  = Import-Module $ManifestFile
+$Cmdlets = Get-Command -Module $ModuleName
+
+foreach ($Cmdlet in $Cmdlets) {
+    $CmdletName = $Cmdlet.Name
+    ./CreateHelpFile.ps1 -Cmdlet $CmdletName -Destination "./docs/cmdlets/$CmdletName.md"
+    $Pages.Cmdlets.$CmdletName = "cmdlets/$CmdletName.md"
+}
+
+# Output
+$MkdocsOutput = @()
+$MkdocsOutput += "site_name: " + $MkdocsSiteName
+$MkdocsOutput += "theme: " + $MkdocsTheme
+$MkdocsOutput += "pages:"
+
+function ConvertHashToYaml ($Value,$Indent = 1) {
+    [CmdletBinding()]
+    $ReturnObject = @()
+    
+    # Get Indententation
+    $TabSpace = ""
+    for ($i = 0;$i -lt $Indent;$i++) {
+        $TabSpace += "  "
+    }
+
+    switch ($Value.GetType().Name) {
+        'hashtable' {
+            foreach ($entry in $Value.GetEnumerator()) {
+                $global:test = $entry
+                $NewLine = $TabSpace + "- " + $entry.Key + ":"
+                if ($entry.Value.GetType().Name -eq "string") {
+                    Write-Verbose "string"
+                    $ReturnObject += $TabSpace + "- " + $entry.Key + ": " + $entry.Value
+                } else {
+                    $ReturnObject += $TabSpace + "- " + $entry.Key + ":"
+                    $ReturnObject += ConvertHashToYaml $entry.Value -Indent ($Indent + 1)
+                }
+                
+            }
+        }
+        'string' {
+            return $Value
+        }
+    }
+    return $ReturnObject
+}
+
+$MkdocsOutput += ConvertHashToYaml $Pages
+
+
+$MkdocsOutput | Out-File ./mkdocs.yml
