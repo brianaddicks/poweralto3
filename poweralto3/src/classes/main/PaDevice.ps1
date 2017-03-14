@@ -75,7 +75,10 @@ class PaDevice {
             $this.UrlHistory += $url.Replace($queryString.password,"PASSWORDREDACTED")
         }
         try {
+            #$ProgressPreferenceRemember = $ProgressPreference
+	        $ProgressPreference = "SilentlyContinue"
             $rawResult = Invoke-WebRequest -Uri $url -SkipCertificateCheck
+            #$env:ProgressPreference = $ProgressPreferenceRemember
         } catch {
             Throw "$($error[0].ToString()) $($error[0].InvocationInfo.PositionMessage)"
         }
@@ -98,7 +101,16 @@ class PaDevice {
                 $errorMessage += $result.response.result.msg
                 $this.LastError = $result.response.result.msg
             }
-            Throw $errorMessage
+
+            switch ($errorMessage) {
+                { $_ -match "No such node" } {
+                    Write-Warning $errorMessage
+                    break
+                }
+                default {
+                    Throw $errorMessage
+                }
+            }
         }
 
         return $result

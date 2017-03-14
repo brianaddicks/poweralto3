@@ -24,21 +24,33 @@ function Get-PaAddress {
 
         $ReturnObject = @()
 
+        $global:test = $PSBoundParameters
+
         if (!($Vsys)) {
             $global:vsys = Get-PaVsys
             foreach ($currentVsys in (Get-PaVsys)) {
                 Write-Verbose "$VerbosePrefix Getting Addresses for Vsys: $currentVsys"
-                $ReturnObject += Get-PaAddress -Vsys $currentVsys
+                $Params = $PSBoundParameters
+                $Params.Vsys = $currentVsys
+                $ReturnObject += Get-PaAddress @Params
             }
         } else {
-            foreach ($entry in $Response.response.result.$ConfigNode.entry) {
+            # Check for singleton entries
+            if ($Response.response.result.$ConfigNode) {
+                $Entries = $Response.response.result.$ConfigNode.entry
+            } else {
+                $Entries = $Response.response.result.entry
+            }
+
+            # loop through entries
+            foreach ($entry in $Response.response.result.entry) {
                 $NewEntry      = New-Object PaAddress
                 $ReturnObject += $NewEntry
 
                 $NewEntry.Vsys        = $Vsys
                 $NewEntry.Device      = $Device
                 $NewEntry.Description = $entry.description
-                
+                $NewEntry.Name        = $entry.name
 
                 # ip-netmask
                 if ($entry.'ip-netmask') {
@@ -62,8 +74,6 @@ function Get-PaAddress {
                 foreach ($tag in $entry.tag.member) {
                     $NewEntry.Tags += $tag
                 }
-
-                $NewEntry.Name                    = $entry.name
             }
         }
         return $ReturnObject
