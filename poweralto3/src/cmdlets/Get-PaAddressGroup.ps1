@@ -1,4 +1,36 @@
-function Get-PaAddress {
+function Get-PaAddressGroup {
+    <#
+	.SYNOPSIS
+		Retrieves Address Group objects for a Palo Alto Device.
+		
+	.DESCRIPTION
+        Retrieves Address Group objects for a Palo Alto Device.
+
+	.EXAMPLE
+		Get-PaAddressGroup
+		
+		Returns all Address Groups for all Vsys/Devices configured.
+
+	.EXAMPLE
+		Get-PaAddressGroup -Name "myaddress"
+
+		Returns all Address Groups named "myaddress" for all Vsys/Devices configured.
+
+    .EXAMPLE
+		Get-PaAddressGroup -Name "myaddress" -Vsys "vsys1"
+
+		Returns Address Group named "myaddress" configured on "vsys1".
+
+	.PARAMETER Name
+		Name of desired Address Group account to query.
+
+    .PARAMETER Vsys
+		Specifies the Vsys to query for configured Address Groups.
+		
+	.PARAMETER Device
+		Specifies the Device to query for configured Address Groups (Panorama).
+	
+	#>
     [CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$False,Position=0)]
@@ -10,11 +42,13 @@ function Get-PaAddress {
         [Parameter(Mandatory=$False,Position=2)]
 		[string]$Device
     )
-    
-    $VerbosePrefix = "Get-PaAddress:"
+    $VerbosePrefix = "Get-PaAddressGroup:"
+
+    # todo
+    # Would like to add -ResolveDynamicGroups to get the members of dynamic groups
 
     if ($global:PaDeviceObject.Connected) {
-        $InfoObject        = New-Object PaAddress
+        $InfoObject        = New-Object PaAddressGroup
         $InfoObject.Name   = $Name
         $InfoObject.Vsys   = $Vsys
         $InfoObject.Device = $Device
@@ -32,7 +66,7 @@ function Get-PaAddress {
                 Write-Verbose "$VerbosePrefix Getting Addresses for Vsys: $currentVsys"
                 $Params = $PSBoundParameters
                 $Params.Vsys = $currentVsys
-                $ReturnObject += Get-PaAddress @Params
+                $ReturnObject += Get-PaAddressGroup @Params
             }
         } else {
             # Check for singleton entries
@@ -44,7 +78,7 @@ function Get-PaAddress {
 
             # loop through entries
             foreach ($entry in $Entries) {
-                $NewEntry      = New-Object PaAddress
+                $NewEntry      = New-Object PaAddressGroup
                 $ReturnObject += $NewEntry
 
                 $NewEntry.Vsys        = $Vsys
@@ -52,27 +86,21 @@ function Get-PaAddress {
                 $NewEntry.Description = $entry.description
                 $NewEntry.Name        = $entry.name
 
-                # ip-netmask
-                if ($entry.'ip-netmask') {
-                    $NewEntry.Address = $entry.'ip-netmask'
-                    $NewEntry.Type    = 'ip-netmask'
-                }
-
-                # ip-range
-                if ($entry.'ip-range') {
-                    $NewEntry.Address = $entry.'ip-range'
-                    $NewEntry.Type    = 'ip-range'
-                }
-
-                # fqdn
-                if ($entry.fqdn) {
-                    $NewEntry.Address = $entry.fqdn
-                    $NewEntry.Type    = 'fqdn'
-                }
-
                 # tags
                 foreach ($tag in $entry.tag.member) {
                     $NewEntry.Tags += $tag
+                }
+
+                # dynamic
+                if ($entry.dynamic) {
+                    $NewEntry.Filter = $entry.dynamic.filter
+                    $NewEntry.Type = 'dynamic'
+                }
+
+                # static
+                if ($entry.static) {
+                    $NewEntry.Members = $entry.static.member
+                    $NewEntry.Type = 'static'
                 }
             }
         }
