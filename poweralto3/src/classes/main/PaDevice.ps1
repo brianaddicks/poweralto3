@@ -138,29 +138,18 @@ class PaDevice {
     }
 
     # Keygen API Query
-    [xml] invokeKeygenQuery([string]$user,[string]$password) {
+    [xml] invokeKeygenQuery([PSCredential]$credential) {
         $queryString = @{}
         $queryString.type = "keygen"
-        $queryString.user = $user
-        $queryString.password = $password
-        $result = $this.invokeApiQuery($queryString)
-        $this.ApiKey = $result.response.result.key
-        return $result
-    }
-
-    # Keygen API Query
-    [xml] invokeKeygenQuery([System.Management.Automation.CredentialAttribute()]$credential) {
-        $queryString = @{}
-        $queryString.type = "keygen"
-        $queryString.user = $user
-        $queryString.password = $password
+        $queryString.user = $credential.UserName
+        $queryString.password = $Credential.getnetworkcredential().password
         $result = $this.invokeApiQuery($queryString)
         $this.ApiKey = $result.response.result.key
         return $result
     }
     
 
-    # Keygen API Query
+    # Operational API Query
     [xml] invokeOperationalQuery([string]$cmd) {
         $queryString = @{}
         $queryString.type = "op"

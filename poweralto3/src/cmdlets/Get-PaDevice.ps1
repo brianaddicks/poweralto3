@@ -84,9 +84,6 @@ function Get-PaDevice {
 
             if ($ApiKey) {
                 $global:PaDeviceObject.ApiKey = $ApiKey
-            } else {
-                $UserName = $Credential.UserName
-                $Password = $Credential.getnetworkcredential().password
             }
 		}
     }
@@ -95,7 +92,6 @@ function Get-PaDevice {
         
         if (!($ApiKey)) {
             Write-Verbose "$VerbosePrefix Attempting to generate API Key."
-            #$global:PaDeviceObject.invokeKeygenQuery($UserName,$Password)
 			$global:PaDeviceObject.invokeKeygenQuery($Credential)
             Write-Verbose "$VerbosePrefix API Key successfully generated."
         }
