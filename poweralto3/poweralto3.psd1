@@ -30,7 +30,7 @@ CompanyName = 'Lockstep Technology Group'
 Copyright = '(c) 2017 Brian Addicks. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'PowerAlto provides an interface to the Palo Alto Firewall API.'
+Description = 'PowerAlto3 provides an interface to the Palo Alto Firewall API.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '5.0'
