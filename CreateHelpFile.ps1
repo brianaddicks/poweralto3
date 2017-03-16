@@ -159,4 +159,5 @@ foreach ($Parameter in $Parameters) {
 }
 
 # Output File
+$global:OutTest = $Output
 $Output | Out-File $Destination -Encoding ascii

@@ -52,8 +52,8 @@ Connects to Palo Alto Device using the default port (443) over SSL (HTTPS) using
 PS c:\> Get-PaDevice -DeviceAddress "pa.example.com" -Credential (Get-Credential)
 ```
 
-Prompts the user for username and password and connects to the Palo Alto Device with those creds.  This will generate a keygen call 
-and the user's API Key will be used for all subsequent calls.
+Prompts the user for username and password and connects to the Palo Alto Device with those creds.  This will generate a keygen call and the 
+user's API Key will be used for all subsequent calls.
 
 
 

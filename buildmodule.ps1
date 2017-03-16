@@ -119,7 +119,7 @@ function ConvertHashToYaml ($Value,$Indent = 1) {
 
 $MkdocsOutput += ConvertHashToYaml $Pages
 
-
+$global:mkdocsoutput = $MkdocsOutput
 $MkdocsOutput | Out-File ./mkdocs.yml
 
 ##############################################################################
