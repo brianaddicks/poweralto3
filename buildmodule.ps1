@@ -4,7 +4,10 @@ Param (
     [string]$ReleaseNotes,
 
     [Parameter(Mandatory=$False)]
-    [switch]$IncrementVersion
+    [switch]$IncrementVersion,
+
+    [Parameter(Mandatory=$False)]
+    [switch]$PublishToPsGallery
 )
 
 ###############################################################################
@@ -118,3 +121,10 @@ $MkdocsOutput += ConvertHashToYaml $Pages
 
 
 $MkdocsOutput | Out-File ./mkdocs.yml
+
+##############################################################################
+# PublishToPsGallery
+
+if ($PublishToPsGallery -and ($PSVersionTable.PSEdition -ne "Core")) {
+    Publish-Module -Path ".\$MkdocsOutput\" -NuGetApiKey $global:nugetapikey
+}
